@@ -1,40 +1,36 @@
 
 package Director;
 
-import Interfaz.Dashboard;
-import classes.Drive;
+import Interfaz.DashboardBueno;
+import classes.Almacen;
 import classes.PM;
-import classes.Tienda;
+import classes.Distribuidora;
 import static java.lang.Thread.sleep;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- *
- * @author raco1
- */
 public class Director extends Thread{
     private int deadline;
     private float sueldo;
     private float sueldoPorHora;
     private String estado;
-    private int juegosParaEntrega;
-    private int juegosParaEntregaDLC;
+    private int computadorasParaEntrega;
+    private int computadorasParaEntregaGrafica;
     private int dayDuration;
-    private Drive drive;
-    private Tienda tienda;
+    private Almacen almacen;
+    private Distribuidora distribuidora;
     private String company;
     private PM projectManager;
     private int contadorHoras;
     private int horaElegida;
     
-    public Director (int sueldoPorHora, int dayDuration, Drive drive, PM projectManager, Tienda tienda, String company,int deadline){
+    public Director (int sueldoPorHora, int dayDuration, Almacen almacen, PM projectManager, Distribuidora distribuidora, String company,int deadline){
         this.sueldoPorHora=sueldoPorHora;
         this.dayDuration=dayDuration;
-        this.drive= drive;
+        this.almacen= almacen;
         this.projectManager=projectManager;
-        this.tienda=tienda;
+        this.distribuidora=distribuidora;
         this.company=company;
         this.deadline=deadline;
         this.contadorHoras = 0;
@@ -75,34 +71,34 @@ public class Director extends Thread{
             }
             
         }else if (this.getProjectManager().getDaysUntilDeadline()==0){
-            this.setEstado("Entregando juegos");
-            this.entregarJuegos();
+            this.setEstado("Entregando Computadoras");
+            this.entregarComputadoras();
             this.getProjectManager().setDaysUntilDeadline(this.getDeadline());
         }
         this.setSueldo(this.getSueldo() + this.getSueldoPorHora() * 24);
         this.setDashboard();
     }
     public void setDashboard(){
-        if(this.company.equals("Nintendo")){
-            Dashboard.getEstadoPmN().setText(this.estado);
+        if(this.company.equals("Apple")){
+            DashboardBueno.getEstadoPmN().setText(this.estado);
         }else{
-           Dashboard.getEstadoDirectorS().setText(this.estado);
+           DashboardBueno.getEstadoDirectorS().setText(this.estado);
         }
     }
     
-    public void entregarJuegos(){
-        this.setJuegosParaEntrega(this.getDrive().getGames());
-        this.setJuegosParaEntregaDLC(this.getDrive().getGamesWithDlc());
-        this.getTienda().recibirJuegos(this.getJuegosParaEntrega(), this.getJuegosParaEntregaDLC(), this.getCompany());
-        this.getDrive().setGames(this.getDrive().getGames()-this.getJuegosParaEntrega());
-        this.getDrive().setGamesWithDlc(this.getDrive().getGamesWithDlc()-this.getJuegosParaEntregaDLC());
-        this.setJuegosParaEntrega(0);
-        this.setJuegosParaEntregaDLC(0);
+    public void entregarComputadoras(){
+        this.setComputadorasParaEntrega(this.getAlmacen().getComputadoras());
+        this.setComputadorasParaEntregaGrafica(this.getAlmacen().getComputadoraConGrafica());
+        this.getDistribuidora().recibirComputadoras(this.getComputadorasParaEntrega(), this.getComputadorasParaEntregaGrafica(), this.getCompany());
+        this.getAlmacen().setComputadoras(this.getAlmacen().getComputadoras()-this.getComputadorasParaEntrega());
+        this.getAlmacen().setComputadoraConGrafica(this.getAlmacen().getComputadoraConGrafica()-this.getComputadorasParaEntregaGrafica());
+        this.setComputadorasParaEntrega(0);
+        this.setComputadorasParaEntregaGrafica(0);
     }
     
     public void supervisarPm(){
         try {
-            if (this.getProjectManager().getEstado().equals("Among us")){
+            if (this.getProjectManager().getEstado().equals("Viendo ONE PIECE")){
                 this.getProjectManager().setFaltas(this.getProjectManager().getFaltas()+1);
                 this.getProjectManager().setDineroDescontado(this.getProjectManager().getDineroDescontado()+50);
                 this.getProjectManager().setSueldo(this.getProjectManager().getSueldo()-50);
@@ -175,31 +171,31 @@ public class Director extends Thread{
     }
 
     /**
-     * @return the juegosParaEntrega
+     * @return the computadorasParaEntrega
      */
-    public int getJuegosParaEntrega() {
-        return juegosParaEntrega;
+    public int getComputadorasParaEntrega() {
+        return computadorasParaEntrega;
     }
 
     /**
-     * @param juegosParaEntrega the juegosParaEntrega to set
+     * @param computadorasParaEntrega the computadorasParaEntrega to set
      */
-    public void setJuegosParaEntrega(int juegosParaEntrega) {
-        this.juegosParaEntrega = juegosParaEntrega;
+    public void setComputadorasParaEntrega(int computadorasParaEntrega) {
+        this.computadorasParaEntrega = computadorasParaEntrega;
     }
 
     /**
-     * @return the juegosParaEntregaDLC
+     * @return the computadorasParaEntregaGrafica
      */
-    public int getJuegosParaEntregaDLC() {
-        return juegosParaEntregaDLC;
+    public int getComputadorasParaEntregaGrafica() {
+        return computadorasParaEntregaGrafica;
     }
 
     /**
-     * @param juegosParaEntregaDLC the juegosParaEntregaDLC to set
+     * @param computadorasParaEntregaGrafica the computadorasParaEntregaGrafica to set
      */
-    public void setJuegosParaEntregaDLC(int juegosParaEntregaDLC) {
-        this.juegosParaEntregaDLC = juegosParaEntregaDLC;
+    public void setComputadorasParaEntregaGrafica(int computadorasParaEntregaGrafica) {
+        this.computadorasParaEntregaGrafica = computadorasParaEntregaGrafica;
     }
 
     /**
@@ -217,31 +213,31 @@ public class Director extends Thread{
     }
 
     /**
-     * @return the drive
+     * @return the almacen
      */
-    public Drive getDrive() {
-        return drive;
+    public Almacen getAlmacen() {
+        return almacen;
     }
 
     /**
-     * @param drive the drive to set
+     * @param almacen the almacen to set
      */
-    public void setDrive(Drive drive) {
-        this.drive = drive;
+    public void setAlmacen(Almacen almacen) {
+        this.almacen = almacen;
     }
 
     /**
-     * @return the tienda
+     * @return the distribuidora
      */
-    public Tienda getTienda() {
-        return tienda;
+    public Distribuidora getDistribuidora() {
+        return distribuidora;
     }
 
     /**
-     * @param tienda the tienda to set
+     * @param distribuidora the distribuidora to set
      */
-    public void setTienda(Tienda tienda) {
-        this.tienda = tienda;
+    public void setDistribuidora(Distribuidora distribuidora) {
+        this.distribuidora = distribuidora;
     }
 
     /**

@@ -1,11 +1,8 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package Developer;
 
-import Interfaz.Dashboard;
-import classes.Drive;
+import Interfaz.DashboardBueno;
+import classes.Almacen;
 import static java.lang.Thread.sleep;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -13,11 +10,8 @@ import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- *
- * @author luisa
- */
-public final class Developer extends Thread {
+
+public final class Worker extends Thread {
     private String company;
     private int type;
     private float sueldo=0;
@@ -25,40 +19,41 @@ public final class Developer extends Thread {
     private float productionPerDay;
     private int dayDuration;
     private float acc = 0;
-    private Drive drive;
+    private Almacen almacen;
     private Semaphore mutex;
-    private int scriptsForGame;
-    private int levelsForGame;
-    private int spritesForGame;
-    private int gameSystemsForGame;
-    private int dlcForGame;
-    int contParaDlc;
-    int contJuegosDlc=0;
+    private int placasParaComputadora;
+    private int cpusParaComputadora;
+    private int ramParaComputadoras;
+    private int fuentesParaComputadora;
+    private int graficasParaComputadora;
+    int contParaGrafica;
+    int contComputadorasGrafica=0;
     
     //La produccion por dia la calcula una funcion de trabajador. Asi que estos son los unicos parametros de inicializacion. 
-    public Developer (String company,int type,int dayDuration, Drive drive, Semaphore m, int sueldoPH){
+    public Worker (String company,int type,int dayDuration, Almacen drive, Semaphore m, int sueldoPH){
 
         this.company = company;
         this.type = type;
         this.dayDuration = dayDuration;
-        this.drive = drive;
+        this.almacen = drive;
         this.mutex = m;
         this.sueldoPorHora=sueldoPH;
-        
-        if (getCompany().compareTo("Nintendo") == 0) {
-            this.scriptsForGame = 2;
-            this.levelsForGame = 1;
-            this.spritesForGame = 4;
-            this.gameSystemsForGame = 4;
-            this.dlcForGame=2;
-            this.contParaDlc=5;
+        //Apple
+        if (getCompany().compareTo("Apple") == 0) {
+            this.placasParaComputadora = 2;
+            this.cpusParaComputadora = 1;
+            this.ramParaComputadoras = 4;
+            this.fuentesParaComputadora = 4;
+            this.graficasParaComputadora=2;
+            this.contParaGrafica=5;
+        //MSI
         } else {
-            this.scriptsForGame = 1;
-            this.levelsForGame = 1;
-            this.spritesForGame = 2;
-            this.gameSystemsForGame = 4;
-            this.dlcForGame=3;
-            this.contParaDlc=2;
+            this.placasParaComputadora = 2;
+            this.cpusParaComputadora = 3;
+            this.ramParaComputadoras = 4;
+            this.fuentesParaComputadora = 6;
+            this.graficasParaComputadora=5;
+            this.contParaGrafica=6;
         }
     }
     
@@ -68,8 +63,8 @@ public final class Developer extends Thread {
         while(true) {
             try {
                 System.out.println("Dias "+cont);
-                System.out.println("Juegos:" + this.getDrive().getGames());
-                System.out.println("Juegos con dlc :" + this.getDrive().getGamesWithDlc());
+                System.out.println("Computadoras:" + this.getAlmacen().getComputadoras());
+                System.out.println("Computadoras con grafica :" + this.getAlmacen().getComputadoraConGrafica());
                 work();
 //                cobrar();
                 sleep(getDayDuration());
@@ -78,7 +73,7 @@ public final class Developer extends Thread {
                 this.setDashboardCo();
                 cont+=1;
             } catch (InterruptedException ex) {
-                Logger.getLogger(Developer.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(Worker.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }
@@ -87,24 +82,24 @@ public final class Developer extends Thread {
     public void work(){
         
         this.calcPpd();
-        if (this.getType() == 5 && (getDrive().getScripts() >= this.scriptsForGame && getDrive().getLevels() >= this.levelsForGame && getDrive().getSprites() >= this.spritesForGame && getDrive().getGameSystems() >= this.gameSystemsForGame)) {
-            if(contJuegosDlc==this.contParaDlc && this.getDrive().getDlcs()>=this.dlcForGame){
+        if (this.getType() == 5 && (getAlmacen().getPlacaBase() >= this.placasParaComputadora && getAlmacen().getCpu() >= this.cpusParaComputadora && getAlmacen().getRam() >= this.ramParaComputadoras && getAlmacen().getFuentes() >= this.fuentesParaComputadora)) {
+            if(contComputadorasGrafica==this.contParaGrafica && this.getAlmacen().getTarjetaGrafica()>=this.graficasParaComputadora){
                 this.setAcc(this.getAcc() + this.getProductionPerDay());
                 if (this.getAcc() >= 1){
                     try {
                          // sección critica
                          this.getMutex().acquire(1);
-                         this.getDrive().addProduct(1, getType(),true);
+                         this.getAlmacen().addProduct(1, getType(),true);
                          this.setAcc(0);
-                         this.getDrive().setScripts(getDrive().getScripts() - this.scriptsForGame);
-                         this.getDrive().setLevels(getDrive().getLevels() - this.levelsForGame);
-                         this.getDrive().setSprites(getDrive().getSprites() - this.spritesForGame);
-                         this.getDrive().setGameSystems(getDrive().getGameSystems() - this.gameSystemsForGame);
-                         this.getDrive().setDlcs(this.getDrive().getDlcs()-this.dlcForGame);
+                         this.getAlmacen().setPlacaBase(getAlmacen().getPlacaBase() - this.placasParaComputadora);
+                         this.getAlmacen().setCpu(getAlmacen().getCpu() - this.cpusParaComputadora);
+                         this.getAlmacen().setRam(getAlmacen().getRam() - this.ramParaComputadoras);
+                         this.getAlmacen().setFuentes(getAlmacen().getFuentes() - this.fuentesParaComputadora);
+                         this.getAlmacen().setTarjetaGrafica(this.getAlmacen().getTarjetaGrafica()-this.graficasParaComputadora);
                          this.getMutex().release();
-                         contJuegosDlc=0;
+                         contComputadorasGrafica=0;
                     } catch (InterruptedException ex) {
-                        Logger.getLogger(Developer.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(Worker.class.getName()).log(Level.SEVERE, null, ex);
                     }
             }
             }else{
@@ -114,21 +109,21 @@ public final class Developer extends Thread {
                     try {
                          // sección critica
                          this.getMutex().acquire(1);
-                         this.getDrive().addProduct(1, getType(), false);
+                         this.getAlmacen().addProduct(1, getType(), false);
                          this.setAcc(0);
-                         this.getDrive().setScripts(getDrive().getScripts() - this.scriptsForGame);
-                         this.getDrive().setLevels(getDrive().getLevels() - this.levelsForGame);
-                         this.getDrive().setSprites(getDrive().getSprites() - this.spritesForGame);
-                         this.getDrive().setGameSystems(getDrive().getGameSystems() - this.gameSystemsForGame);
+                         this.getAlmacen().setPlacaBase(getAlmacen().getPlacaBase() - this.placasParaComputadora);
+                         this.getAlmacen().setCpu(getAlmacen().getCpu() - this.cpusParaComputadora);
+                         this.getAlmacen().setRam(getAlmacen().getRam() - this.ramParaComputadoras);
+                         this.getAlmacen().setFuentes(getAlmacen().getFuentes() - this.fuentesParaComputadora);
                          this.getMutex().release();
-                         contJuegosDlc+=1;
+                         contComputadorasGrafica+=1;
                     } catch (InterruptedException ex) {
-                        Logger.getLogger(Developer.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(Worker.class.getName()).log(Level.SEVERE, null, ex);
                     }
             }
             }
         }
-        //Aqui se calcula la produccion diaria dependiendo del tipo de trabajador y su insercion al drive 
+        //Aqui se calcula la produccion diaria dependiendo del tipo de trabajador y su insercion al almacen 
        
         this.setAcc(this.getAcc() + this.getProductionPerDay());
         if (this.getAcc() >= 1 && this.getType() != 5){
@@ -137,27 +132,27 @@ public final class Developer extends Thread {
                  // sección critica
                  this.getMutex().acquire(1);
                  if(this.getAcc()>=5){
-                     if(!this.drive.returnDrive(this.getType())){
-                        this.getDrive().addProduct(5, getType(),false);
-                        if(this.getDrive().getGameSystems()>=35){
-                            this.getDrive().setGameSystems(35);
+                     if(!this.almacen.returnDrive(this.getType())){
+                        this.getAlmacen().addProduct(5, getType(),false);
+                        if(this.getAlmacen().getFuentes()>=35){
+                            this.getAlmacen().setFuentes(35);
                         }
                      }else {
-                         System.out.println("drive lleno");
+                         System.out.println("Almacen lleno");
                      }
                          
                  }else{
-                     if(!this.drive.returnDrive(this.getType())){
-                        this.getDrive().addProduct(1, getType(), false);
+                     if(!this.almacen.returnDrive(this.getType())){
+                        this.getAlmacen().addProduct(1, getType(), false);
                      }else{
-                         System.out.println("Drive lleno");
+                         System.out.println("Almacen lleno");
                      }
                  }
                  this.setAcc(0);
                  this.getMutex().release();
                 
             } catch (InterruptedException ex) {
-                Logger.getLogger(Developer.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(Worker.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
                         
@@ -167,15 +162,15 @@ public final class Developer extends Thread {
     }
     public void setDashboardCo(){
         int costo;
-        costo= Integer.parseInt(Dashboard.getCostosOpeN().getText());
+        costo= Integer.parseInt(DashboardBueno.getCostosOpeN().getText());
         costo+=24*this.sueldoPorHora;
         String ingresar;
         ingresar= Integer.toString(costo);
         
-        if(this.company.equals("Nintendo")){
-            Dashboard.getCostosOpeN().setText(ingresar);
+        if(this.company.equals("Apple")){
+            DashboardBueno.getCostosOpeN().setText(ingresar);
         }else{
-           Dashboard.getCostosOpeS().setText(ingresar);
+           DashboardBueno.getCostosOpeS().setText(ingresar);
         }
         
     }
@@ -222,22 +217,22 @@ public final class Developer extends Thread {
     
     public void setInter(){
         
-        if(this.getCompany().equals("Nintendo")){
+        if(this.getCompany().equals("Apple")){
             switch (getType()) {
                 case 0:
-                    Dashboard.getCantGuionesN6().setText(Integer.toString(drive.getScripts()));
+                    DashboardBueno.getCantGuionesN6().setText(Integer.toString(almacen.getPlacaBase()));
                     break;
                 case 1:
-                    Dashboard.getCantNivelesN().setText(Integer.toString(drive.getLevels()));
+                    DashboardBueno.getCantNivelesN().setText(Integer.toString(almacen.getCpu()));
                     break;
                 case 2:
-                    Dashboard.getCantSpritesN().setText(Integer.toString(drive.getSprites()));
+                    DashboardBueno.getCantSpritesN().setText(Integer.toString(almacen.getRam()));
                     break;
                 case 3:
-                    Dashboard.getCantSistemasN().setText(Integer.toString(drive.getGameSystems()));
+                    DashboardBueno.getCantSistemasN().setText(Integer.toString(almacen.getFuentes()));
                     break;
                 case 4:
-                    Dashboard.getCantDlcN().setText(Integer.toString(drive.getDlcs()));
+                    DashboardBueno.getCantDlcN().setText(Integer.toString(almacen.getTarjetaGrafica()));
                     break;
                 default:
                     break;
@@ -246,19 +241,19 @@ public final class Developer extends Thread {
             
             switch (getType()) {
                 case 0:
-                    Dashboard.getCantGuionesS().setText(Integer.toString(drive.getScripts()));
+                    DashboardBueno.getCantGuionesS().setText(Integer.toString(almacen.getPlacaBase()));
                     break;
                 case 1:
-                    Dashboard.getCantNivelesS().setText(Integer.toString(drive.getLevels()));
+                    DashboardBueno.getCantNivelesS().setText(Integer.toString(almacen.getCpu()));
                     break;
                 case 2:
-                    Dashboard.getCantSpritesS().setText(Integer.toString(drive.getSprites()));
+                    DashboardBueno.getCantSpritesS().setText(Integer.toString(almacen.getRam()));
                     break;
                 case 3:
-                    Dashboard.getCantSistemasS().setText(Integer.toString(drive.getGameSystems()));
+                    DashboardBueno.getCantSistemasS().setText(Integer.toString(almacen.getFuentes()));
                     break;
                 case 4:
-                    Dashboard.getCantDlcS().setText(Integer.toString(drive.getDlcs()));
+                    DashboardBueno.getCantDlcS().setText(Integer.toString(almacen.getTarjetaGrafica()));
                     break;
                 default:
                     break;
@@ -267,12 +262,12 @@ public final class Developer extends Thread {
     }
     
     public void setDashboard(){
-    if(this.company.equals("Nintendo")){
-            Dashboard.getReadyToShipDLC().setText(Integer.toString(drive.getGamesWithDlc()));
-            Dashboard.getReadyToShip1().setText(Integer.toString(drive.getGames()));
+    if(this.company.equals("Apple")){
+            DashboardBueno.getReadyToShipDLC().setText(Integer.toString(almacen.getComputadoraConGrafica()));
+            DashboardBueno.getReadyToShip1().setText(Integer.toString(almacen.getComputadoras()));
         }else{
-           Dashboard.getReadyToShipDLCSq().setText(Integer.toString(drive.getGamesWithDlc()));
-            Dashboard.getReadyToShipSq().setText(Integer.toString(drive.getGames()));
+           DashboardBueno.getReadyToShipDLCSq().setText(Integer.toString(almacen.getComputadoraConGrafica()));
+            DashboardBueno.getReadyToShipSq().setText(Integer.toString(almacen.getComputadoras()));
         }
 }
     
@@ -335,17 +330,17 @@ public final class Developer extends Thread {
     }
 
     /**
-     * @return the drive
+     * @return the almacen
      */
-    public Drive getDrive() {
-        return drive;
+    public Almacen getAlmacen() {
+        return almacen;
     }
 
     /**
-     * @param drive the drive to set
+     * @param almacen the almacen to set
      */
-    public void setDrive(Drive drive) {
-        this.drive = drive;
+    public void setAlmacen(Almacen almacen) {
+        this.almacen = almacen;
     }
 
     /**
@@ -377,59 +372,59 @@ public final class Developer extends Thread {
     }
 
     /**
-     * @return the scriptsForGame
+     * @return the placasParaComputadora
      */
-    public int getScriptsForGame() {
-        return scriptsForGame;
+    public int getPlacasParaComputadora() {
+        return placasParaComputadora;
     }
 
     /**
-     * @param scriptsForGame the scriptsForGame to set
+     * @param placasParaComputadora the placasParaComputadora to set
      */
-    public void setScriptsForGame(int scriptsForGame) {
-        this.scriptsForGame = scriptsForGame;
+    public void setPlacasParaComputadora(int placasParaComputadora) {
+        this.placasParaComputadora = placasParaComputadora;
     }
 
     /**
-     * @return the levelsForGame
+     * @return the cpusParaComputadora
      */
-    public int getLevelsForGame() {
-        return levelsForGame;
+    public int getCpusParaComputadora() {
+        return cpusParaComputadora;
     }
 
     /**
-     * @param levelsForGame the levelsForGame to set
+     * @param cpusParaComputadora the cpusParaComputadora to set
      */
-    public void setLevelsForGame(int levelsForGame) {
-        this.levelsForGame = levelsForGame;
+    public void setCpusParaComputadora(int cpusParaComputadora) {
+        this.cpusParaComputadora = cpusParaComputadora;
     }
 
     /**
-     * @return the spritesForGame
+     * @return the ramParaComputadoras
      */
-    public int getSpritesForGame() {
-        return spritesForGame;
+    public int getRamParaComputadoras() {
+        return ramParaComputadoras;
     }
 
     /**
-     * @param spritesForGame the spritesForGame to set
+     * @param ramParaComputadoras the ramParaComputadoras to set
      */
-    public void setSpritesForGame(int spritesForGame) {
-        this.spritesForGame = spritesForGame;
+    public void setRamParaComputadoras(int ramParaComputadoras) {
+        this.ramParaComputadoras = ramParaComputadoras;
     }
 
     /**
-     * @return the gameSystemsForGame
+     * @return the fuentesParaComputadora
      */
-    public int getGameSystemsForGame() {
-        return gameSystemsForGame;
+    public int getFuentesParaComputadora() {
+        return fuentesParaComputadora;
     }
 
     /**
-     * @param gameSystemsForGame the gameSystemsForGame to set
+     * @param fuentesParaComputadora the fuentesParaComputadora to set
      */
-    public void setGameSystemsForGame(int gameSystemsForGame) {
-        this.gameSystemsForGame = gameSystemsForGame;
+    public void setFuentesParaComputadora(int fuentesParaComputadora) {
+        this.fuentesParaComputadora = fuentesParaComputadora;
     }
 
     /**
